@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.JatusIBKR" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:statusBarColor">#1a1a2e</item>
+        <item name="colorAccent">#4a9eff</item>
+    </style>
+</resources>

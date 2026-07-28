@@ -1,0 +1,63 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'top.jatus.ibkr'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "top.jatus.ibkr"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        // 极光推送 AppKey —— 在极光控制台创建应用后填入
+        manifestPlaceholders = [
+            JPUSH_PKGNAME: applicationId,
+            JPUSH_APPKEY : "2e4279d8d36497b86bbeb0f9",   // ← 替换为你的 AppKey
+            JPUSH_CHANNEL: "developer-default"
+        ]
+    }
+
+    // 从 Gradle 属性（CI 传入）或本地 keystore.properties 读取签名信息
+    def keystorePropsFile = rootProject.file("keystore.properties")
+    def keystoreProps = new Properties()
+    if (keystorePropsFile.exists()) {
+        keystorePropsFile.withInputStream { keystoreProps.load(it) }
+    }
+
+    signingConfigs {
+        release {
+            storeFile     file(findProperty("STORE_FILE")     ?: keystoreProps["storeFile"]     ?: "release.jks")
+            storePassword      (findProperty("STORE_PASSWORD") ?: keystoreProps["storePassword"] ?: "")
+            keyAlias           (findProperty("KEY_ALIAS")      ?: keystoreProps["keyAlias"]      ?: "")
+            keyPassword        (findProperty("KEY_PASSWORD")   ?: keystoreProps["keyPassword"]   ?: "")
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // AndroidX
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    // 极光推送 JPush SDK
+    implementation 'cn.jiguang.sdk:jpush:5.2.2'
+    implementation 'cn.jiguang.sdk:jcore:4.2.2'
+}

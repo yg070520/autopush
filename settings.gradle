@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // 极光推送 Maven 仓库
+        maven { url 'https://mvnrepo.jiguang.cn/nexus/content/repositories/releases' }
+    }
+}
+
+rootProject.name = "JatusIBKR"
+include ':app'
