@@ -42,7 +42,69 @@
             android:name="JPUSH_APPKEY"
             android:value="${JPUSH_APPKEY}" />
 
-        <!-- JPush 推送消息接收器 -->
+        <!-- ===== JPush 5.x 必需组件 ===== -->
+
+        <!-- JCore 核心服务（运行在独立进程） -->
+        <service
+            android:name="cn.jpush.android.service.JCommonService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":pushservice">
+            <intent-filter>
+                <action android:name="cn.jiguang.user.service.action" />
+            </intent-filter>
+        </service>
+
+        <!-- JPush 推送服务 -->
+        <service
+            android:name="cn.jpush.android.service.PushService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":pushservice">
+            <intent-filter>
+                <action android:name="cn.jpush.android.intent.PushService" />
+            </intent-filter>
+        </service>
+
+        <!-- JPush 后台任务服务 -->
+        <service
+            android:name="cn.jpush.android.service.JPushJobService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=":pushservice" />
+
+        <!-- JPush 系统广播接收器 -->
+        <receiver
+            android:name="cn.jpush.android.service.PushReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter android:priority="1000">
+                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED_PROXY" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- JPush 通知点击跳转 Activity -->
+        <activity
+            android:name="cn.jpush.android.ui.PushActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar">
+            <intent-filter>
+                <action android:name="cn.jpush.android.ui.PushActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </activity>
+
+        <!-- JPush 推送消息自定义接收器 -->
         <receiver
             android:name=".JpushReceiver"
             android:enabled="true"
