@@ -47,9 +47,6 @@ public class MainActivity extends AppCompatActivity {
         setupSwipeRefresh();
         requestNotificationPermission();
 
-        // 设置 JPush alias，服务端可通过 alias 定向推送
-        JPushInterface.setAlias(this, 1, "jatus");
-
         // 处理从推送点击跳转过来的 URL
         handleNotificationIntent(getIntent());
 
