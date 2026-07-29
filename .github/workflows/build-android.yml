@@ -59,10 +59,12 @@ jobs:
           path: dist/*.apk
           retention-days: 30
 
-      # 8. 推送 Tag 时自动创建 GitHub Release 并附加 APK
+      # 8. 始终发布 GitHub Release（main 分支覆盖 latest，Tag 发布正式版）
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'Latest Build' }}
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
           files: dist/*.apk
-          generate_release_notes: true
+          generate_release_notes: ${{ startsWith(github.ref, 'refs/tags/') }}

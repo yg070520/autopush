@@ -26,7 +26,7 @@ import cn.jpush.android.api.JPushInterface;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TARGET_URL = "https://jatus.top";
+    private static final String TARGET_URL = "https://ibkr.jatus.top";
     private static final int REQUEST_POST_NOTIFICATIONS = 100;
 
     private WebView webView;
