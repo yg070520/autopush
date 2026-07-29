@@ -2,6 +2,7 @@ package top.jatus.ibkr;
 
 import android.app.Application;
 import cn.jpush.android.api.JPushInterface;
+import top.jatus.ibkr.BuildConfig;
 
 public class MyApplication extends Application {
 

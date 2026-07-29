@@ -73,7 +73,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
-    // 极光推送 JPush SDK
-    implementation 'cn.jiguang.sdk:jpush:5.2.2'
-    implementation 'cn.jiguang.sdk:jcore:4.2.2'
+    // 极光推送 JPush SDK（4.6.0 + jcore 3.2.0 为已验证稳定组合）
+    implementation 'cn.jiguang.sdk:jpush:4.6.0'
+    implementation 'cn.jiguang.sdk:jcore:3.2.0'
 }
