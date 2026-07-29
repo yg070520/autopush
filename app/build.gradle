@@ -22,12 +22,27 @@ android {
         versionCode 1
         versionName "1.0"
 
-        // 极光推送 AppKey —— 在极光控制台创建应用后填入
+        // 极光推送 AppKey
         manifestPlaceholders = [
-            JPUSH_PKGNAME: applicationId,
-            JPUSH_APPKEY : "2e4279d8d36497b86bbeb0f9",   // ← 替换为你的 AppKey
-            JPUSH_CHANNEL: "developer-default"
+            JPUSH_PKGNAME  : applicationId,
+            JPUSH_APPKEY   : "2e4279d8d36497b86bbeb0f9",
+            JPUSH_CHANNEL  : "developer-default",
+            // 小米厂商通道（在小米开放平台申请后填入）
+            XIAOMI_APPID   : "MI-小米的APPID",
+            XIAOMI_APPKEY  : "MI-小米的APPKEY",
+            // OPPO 厂商通道（在 OPPO 开放平台申请后填入）
+            OPPO_APPKEY    : "OP-oppo的APPKEY",
+            OPPO_APPID     : "OP-oppo的APPID",
+            OPPO_APPSECRET : "OP-oppo的APPSECRET",
+            // VIVO 厂商通道（在 VIVO 开放平台申请后填入）
+            VIVO_APPKEY    : "vivo的APPKEY",
+            VIVO_APPID     : "vivo的APPID"
         ]
+
+        ndk {
+            // 指定 ABI，确保 JPush native 库正确加载
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
     }
 
     // 从 Gradle 属性（CI 传入）或本地 keystore.properties 读取签名信息
@@ -73,7 +88,11 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
-    // 极光推送 JPush SDK（4.6.0 + jcore 3.2.0 为已验证稳定组合）
-    implementation 'cn.jiguang.sdk:jpush:4.6.0'
-    implementation 'cn.jiguang.sdk:jcore:3.2.0'
+    // 极光推送 5.5.3（jcore 自动引入，无需单独声明）
+    implementation 'cn.jiguang.sdk:jpush:5.5.3'
+
+    // 国内厂商通道（后台保活，国内手机必须接入才能稳定收推送）
+    implementation 'cn.jiguang.sdk.plugin:xiaomi:5.5.3'   // 小米
+    implementation 'cn.jiguang.sdk.plugin:oppo:5.5.3'     // OPPO
+    implementation 'cn.jiguang.sdk.plugin:vivo:5.5.3.a'   // VIVO
 }

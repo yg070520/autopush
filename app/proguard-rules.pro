@@ -4,9 +4,14 @@
 -keep class * extends cn.jpush.android.service.JPushMessageReceiver { *; }
 -keep class cn.jiguang.** { *; }
 
-# WebView JS 接口（如有）
+# 厂商通道
+-dontwarn com.xiaomi.**
+-keep class com.xiaomi.** { *; }
+-dontwarn com.heytap.**
+-keep class com.heytap.** { *; }
+-dontwarn com.vivo.**
+-keep class com.vivo.** { *; }
+
+# WebView JS 接口
 -keepattributes JavascriptInterface
 -keepattributes *Annotation*
-
-# 保留 BuildConfig
--keep class top.jatus.ibkr.BuildConfig { *; }
