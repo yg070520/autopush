@@ -47,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         setupSwipeRefresh();
         requestNotificationPermission();
 
+        // 设置 JPush alias，服务端可通过 alias 定向推送
+        JPushInterface.setAlias(this, 1, "jatus");
+
         // 处理从推送点击跳转过来的 URL
         handleNotificationIntent(getIntent());
 
@@ -120,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
     private void setupSwipeRefresh() {
         swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
         swipeRefreshLayout.setOnRefreshListener(() -> webView.reload());
+        // 只有 WebView 滚到顶部时才允许触发下拉刷新，避免与页面内滚动冲突
+        swipeRefreshLayout.setOnChildScrollUpCallback((parent, child) ->
+                webView.canScrollVertically(-1));
     }
 
     /** 申请 Android 13+ 通知权限 */
