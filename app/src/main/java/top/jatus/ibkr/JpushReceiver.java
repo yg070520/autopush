@@ -2,7 +2,6 @@ package top.jatus.ibkr;
 
 import android.content.Context;
 import android.util.Log;
-import cn.jpush.android.api.AliasMessage;
 import cn.jpush.android.api.CustomMessage;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.JPushMessage;
