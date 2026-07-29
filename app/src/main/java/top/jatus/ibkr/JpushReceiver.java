@@ -17,7 +17,10 @@ public class JpushReceiver extends JPushMessageReceiver {
     @Override
     public void onRegister(Context context, String registrationId) {
         super.onRegister(context, registrationId);
-        Log.i(TAG, "JPush registered, regId=" + registrationId);
+        Log.i(TAG, "JPush registered OK, regId=" + registrationId);
+        // 检查通知权限
+        boolean notifEnabled = cn.jpush.android.api.JPushInterface.isNotificationEnabled(context) == 1;
+        Log.i(TAG, "Notification enabled: " + notifEnabled);
         JPushInterface.setAlias(context, 1, ALIAS);
     }
 
