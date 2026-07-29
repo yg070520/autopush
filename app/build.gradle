@@ -58,6 +58,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    // JPush 的 libjutils.so 不支持 strip，保留原始符号即可
+    packaging {
+        jniLibs {
+            keepDebugSymbols += ['**/libjutils.so']
+        }
+    }
 }
 
 dependencies {
