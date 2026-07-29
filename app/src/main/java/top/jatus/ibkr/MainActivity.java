@@ -149,7 +149,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void handleNotificationIntent(Intent intent) {
         if (intent == null) return;
-        Bundle extras = intent.getBundleExtra(cn.jpush.android.api.JPushInterface.EXTRA_NOTIFICATION_EXTRAS);
+        // "cn.jpush.android.extra.NOTIFICATION_EXTRAS" 是 JPushInterface.EXTRA_NOTIFICATION_EXTRAS 的实际值
+        Bundle extras = intent.getBundleExtra("cn.jpush.android.extra.NOTIFICATION_EXTRAS");
         if (extras != null) {
             String url = extras.getString("url");
             if (url != null && !url.isEmpty()) {
