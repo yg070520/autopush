@@ -48,10 +48,10 @@ public class MainActivity extends AppCompatActivity {
         requestNotificationPermission();
 
         // 处理从推送点击跳转过来的 URL
-        handleNotificationIntent(getIntent());
-
-        // 首次加载
-        webView.loadUrl(TARGET_URL);
+        if (!handleNotificationIntent(getIntent()) && !handleAppLink(getIntent())) {
+            // 首次加载
+            webView.loadUrl(TARGET_URL);
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -150,25 +150,64 @@ public class MainActivity extends AppCompatActivity {
      * 极光推送在 extras 里传入 "url" 字段，即可跳转到对应页面。
      * 示例推送 extras: {"url": "https://jatus.top/trades"}
      */
-    private void handleNotificationIntent(Intent intent) {
-        if (intent == null) return;
+    private boolean handleNotificationIntent(Intent intent) {
+        if (intent == null) return false;
         // "cn.jpush.android.extra.NOTIFICATION_EXTRAS" 是 JPushInterface.EXTRA_NOTIFICATION_EXTRAS 的实际值
         Bundle extras = intent.getBundleExtra("cn.jpush.android.extra.NOTIFICATION_EXTRAS");
         if (extras != null) {
             String url = extras.getString("url");
             if (url != null && !url.isEmpty()) {
                 webView.loadUrl(url);
-                return;
+                return true;
             }
         }
-        // 默认不做处理，保持已加载页面
+        return false;
+    }
+
+    /**
+     * 处理来自 App Link / Deep Link 的 Intent。
+     * 例如 https://m.jatus.top:7888/open?source=telegram&event=alert&symbol=MNQ
+     */
+    private boolean handleAppLink(Intent intent) {
+        if (intent == null) return false;
+        Uri data = intent.getData();
+        if (data == null) return false;
+
+        String path = data.getPath();
+        if (path == null || !path.startsWith("/open")) {
+            return false;
+        }
+
+        String source = data.getQueryParameter("source");
+        String event = data.getQueryParameter("event");
+        String symbol = data.getQueryParameter("symbol");
+        String price = data.getQueryParameter("price");
+
+        Uri.Builder builder = Uri.parse(TARGET_URL).buildUpon();
+        if (source != null && !source.isEmpty()) {
+            builder.appendQueryParameter("source", source);
+        }
+        if (event != null && !event.isEmpty()) {
+            builder.appendQueryParameter("event", event);
+        }
+        if (symbol != null && !symbol.isEmpty()) {
+            builder.appendQueryParameter("symbol", symbol);
+        }
+        if (price != null && !price.isEmpty()) {
+            builder.appendQueryParameter("price", price);
+        }
+
+        webView.loadUrl(builder.build().toString());
+        return true;
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        handleNotificationIntent(intent);
+        if (!handleNotificationIntent(intent) && !handleAppLink(intent)) {
+            webView.loadUrl(TARGET_URL);
+        }
     }
 
     @Override
