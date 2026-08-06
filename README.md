@@ -99,3 +99,12 @@ App 收到通知点击后会自动在 WebView 内打开对应页面：
 | 外链处理 | 站外链接跳转系统浏览器 |
 | 返回键 | WebView 历史后退，无历史则最小化 App |
 | User-Agent | 追加 `JatusIBKRApp/1.0`，服务端可识别来源 |
+
+
+由于无法用链接拉起,需要在adb里强制配置信任app
+.\adb.exe shell pm set-app-links --package top.jatus.ibkr 1 tm.jatus.top
+
+验证
+.\adb.exe  shell pm get-app-links top.jatus.ibkr
+
+在bluestacks上验证了, https://tm.ibkr.top/open 是能够直接唤起app-link的.
