@@ -40,9 +40,8 @@
 
                 <data
                     android:scheme="https"
-                    android:host="m.jatus.top"
-                    android:port="7888"
-                    android:pathPrefix="/open" />
+                    android:host="tm.jatus.top"
+                    android:path="/open" />
             </intent-filter>
         </activity>
 
