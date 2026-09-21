@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         setupWebView();
         setupSwipeRefresh();
         requestNotificationPermission();
+        KeepAliveForegroundService.start(this);
 
         // 处理从推送点击跳转过来的 URL
         if (!handleNotificationIntent(getIntent()) && !handleAppLink(getIntent())) {

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Jatus IBKR</string>
+    <string name="push_service_channel_name">推送连接</string>
+    <string name="push_service_channel_description">保持推送消息连接</string>
+    <string name="push_service_notification_title">Jatus IBKR 正在后台运行</string>
+    <string name="push_service_notification_text">正在保持推送消息连接</string>
 </resources>
