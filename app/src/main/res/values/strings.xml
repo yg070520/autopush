@@ -6,4 +6,6 @@
     <string name="push_service_notification_text">正在保持推送消息连接</string>
     <string name="accessibility_service_label">前台应用提示</string>
     <string name="accessibility_service_description">在应用切换到前台时短暂显示应用名称</string>
+    <string name="accessibility_service_enable_message">请在系统无障碍设置中启用“前台应用提示”，以显示切换到前台的应用名称。</string>
+    <string name="accessibility_service_enable_action">前往设置</string>
 </resources>

@@ -2,11 +2,13 @@ package top.jatus.ibkr;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebChromeClient;
@@ -18,9 +20,12 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import android.view.accessibility.AccessibilityManager;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -47,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         setupSwipeRefresh();
         requestNotificationPermission();
         KeepAliveForegroundService.start(this);
+        promptToEnableForegroundAppMonitor();
 
         // 处理从推送点击跳转过来的 URL
         if (!handleNotificationIntent(getIntent()) && !handleAppLink(getIntent())) {
@@ -136,6 +142,34 @@ public class MainActivity extends AppCompatActivity {
                         REQUEST_POST_NOTIFICATIONS);
             }
         }
+    }
+
+    private void promptToEnableForegroundAppMonitor() {
+        AccessibilityManager accessibilityManager =
+                (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        if (accessibilityManager == null || isForegroundAppMonitorEnabled(accessibilityManager)) {
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.accessibility_service_label)
+                .setMessage(R.string.accessibility_service_enable_message)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.accessibility_service_enable_action, (dialog, which) ->
+                        startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)))
+                .show();
+    }
+
+    private boolean isForegroundAppMonitorEnabled(AccessibilityManager accessibilityManager) {
+        String serviceId = getPackageName() + "/"
+                + ForegroundAppAccessibilityService.class.getName();
+        for (AccessibilityServiceInfo serviceInfo : accessibilityManager
+                .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)) {
+            if (serviceId.equals(serviceInfo.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
