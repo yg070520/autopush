@@ -5,8 +5,9 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.TextView;
@@ -14,7 +15,7 @@ import android.widget.TextView;
 public class ForegroundAppAccessibilityService extends AccessibilityService {
 
     private static final long DUPLICATE_EVENT_WINDOW_MILLIS = 300L;
-    private static final String TWITTER_PACKAGE = "com.twitter.android";
+    private static final long LAUNCHER_STOP_DELAY_MILLIS = 2_000L;
     private static final String CLASH_PACKAGE = "com.github.metacubex.clash.meta";
     private static final String CLASH_CONTROL_ACTIVITY =
         "com.github.kr328.clash.ExternalControlActivity";
@@ -26,8 +27,22 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
     private String lastPackageName;
     private long lastEventTimeMillis;
     private boolean clashRequestedRunning;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Runnable stopClashWhenStillOnLauncher = () -> {
+        if (clashRequestedRunning && isLauncherPackage(lastPackageName)) {
+            controlClash(CLASH_ACTION_STOP);
+            clashRequestedRunning = false;
+        }
+    };
+    private ClashAppListStore appListStore;
     private WindowManager windowManager;
     private TextView packageNameView;
+
+    @Override
+    protected void onServiceConnected() {
+        super.onServiceConnected();
+        appListStore = new ClashAppListStore(this);
+    }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -51,6 +66,7 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
 
     @Override
     public void onInterrupt() {
+        mainHandler.removeCallbacks(stopClashWhenStillOnLauncher);
         removePackageNameOverlay();
     }
 
@@ -75,7 +91,11 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
 
     @Override
     public void onDestroy() {
+        mainHandler.removeCallbacks(stopClashWhenStillOnLauncher);
         removePackageNameOverlay();
+        if (appListStore != null) {
+            appListStore.close();
+        }
         super.onDestroy();
     }
 
@@ -103,13 +123,26 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
     }
 
     private void updateClashState(String packageName) {
-        if (TWITTER_PACKAGE.equals(packageName) && !clashRequestedRunning) {
+        if (isClashApp(packageName) && !clashRequestedRunning) {
+            mainHandler.removeCallbacks(stopClashWhenStillOnLauncher);
             controlClash(CLASH_ACTION_START);
             clashRequestedRunning = true;
-        } else if (isLauncherPackage(packageName) && clashRequestedRunning) {
-            controlClash(CLASH_ACTION_STOP);
-            clashRequestedRunning = false;
+            return;
         }
+
+        if (!isLauncherPackage(packageName)) {
+            mainHandler.removeCallbacks(stopClashWhenStillOnLauncher);
+            return;
+        }
+
+        if (clashRequestedRunning) {
+            mainHandler.removeCallbacks(stopClashWhenStillOnLauncher);
+            mainHandler.postDelayed(stopClashWhenStillOnLauncher, LAUNCHER_STOP_DELAY_MILLIS);
+        }
+    }
+
+    private boolean isClashApp(String packageName) {
+        return appListStore != null && appListStore.contains(packageName);
     }
 
     private boolean isLauncherPackage(String packageName) {

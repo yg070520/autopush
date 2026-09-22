@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         setupSwipeRefresh();
         requestNotificationPermission();
         KeepAliveForegroundService.start(this);
+        ClashAppListStore.refreshAsync(this);
         promptToEnableForegroundAppMonitor();
 
         // 处理从推送点击跳转过来的 URL
