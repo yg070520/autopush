@@ -1,6 +1,8 @@
 package top.jatus.ibkr;
 
 import android.accessibilityservice.AccessibilityService;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
@@ -12,9 +14,18 @@ import android.widget.TextView;
 public class ForegroundAppAccessibilityService extends AccessibilityService {
 
     private static final long DUPLICATE_EVENT_WINDOW_MILLIS = 300L;
+    private static final String TWITTER_PACKAGE = "com.twitter.android";
+    private static final String CLASH_PACKAGE = "com.github.metacubex.clash.meta";
+    private static final String CLASH_CONTROL_ACTIVITY =
+        "com.github.kr328.clash.ExternalControlActivity";
+    private static final String CLASH_ACTION_START =
+        "com.github.metacubex.clash.meta.action.START_CLASH";
+    private static final String CLASH_ACTION_STOP =
+        "com.github.metacubex.clash.meta.action.STOP_CLASH";
 
     private String lastPackageName;
     private long lastEventTimeMillis;
+    private boolean clashRequestedRunning;
     private WindowManager windowManager;
     private TextView packageNameView;
 
@@ -35,6 +46,7 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
         lastPackageName = packageName;
         lastEventTimeMillis = eventTimeMillis;
         showPackageName(packageName);
+        updateClashState(packageName);
     }
 
     @Override
@@ -88,6 +100,34 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
         }
         packageNameView = null;
         windowManager = null;
+    }
+
+    private void updateClashState(String packageName) {
+        if (TWITTER_PACKAGE.equals(packageName) && !clashRequestedRunning) {
+            controlClash(CLASH_ACTION_START);
+            clashRequestedRunning = true;
+        } else if (isLauncherPackage(packageName) && clashRequestedRunning) {
+            controlClash(CLASH_ACTION_STOP);
+            clashRequestedRunning = false;
+        }
+    }
+
+    private boolean isLauncherPackage(String packageName) {
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        homeIntent.setPackage(packageName);
+        return getPackageManager().resolveActivity(homeIntent, 0) != null;
+    }
+
+    private void controlClash(String action) {
+        Intent intent = new Intent(action);
+        intent.setComponent(new ComponentName(CLASH_PACKAGE, CLASH_CONTROL_ACTIVITY));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivity(intent);
+        } catch (RuntimeException ignored) {
+            // Clash Meta may not be installed or may reject the external control intent.
+        }
     }
 
     private int dpToPixels(int dp) {
