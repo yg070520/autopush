@@ -111,7 +111,7 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
                             | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     -3);
             layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            layoutParams.y = dpToPixels(48);
+            layoutParams.y = dpToPixels(96);
             windowManager.addView(packageNameView, layoutParams);
         }
 

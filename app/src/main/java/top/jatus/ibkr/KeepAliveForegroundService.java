@@ -73,7 +73,6 @@ public class KeepAliveForegroundService extends Service {
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.push_service_notification_title))
-                .setContentText(getString(R.string.push_service_notification_text))
                 .setContentIntent(openAppPendingIntent)
                 .setOngoing(true)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
