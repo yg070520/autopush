@@ -24,6 +24,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.view.accessibility.AccessibilityManager;
 
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar progressBar;
+    private SwitchCompat clashAutomationSwitch;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -47,9 +49,11 @@ public class MainActivity extends AppCompatActivity {
         webView = findViewById(R.id.webView);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         progressBar = findViewById(R.id.progressBar);
+        clashAutomationSwitch = findViewById(R.id.clashAutomationSwitch);
 
         setupWebView();
         setupSwipeRefresh();
+        setupClashAutomationSwitch();
         requestNotificationPermission();
         KeepAliveForegroundService.start(this);
         ClashAppListStore.refreshAsync(this);
@@ -131,6 +135,12 @@ public class MainActivity extends AppCompatActivity {
         // 只有 WebView 滚到顶部时才允许触发下拉刷新，避免与页面内滚动冲突
         swipeRefreshLayout.setOnChildScrollUpCallback((parent, child) ->
                 webView.canScrollVertically(-1));
+    }
+
+    private void setupClashAutomationSwitch() {
+        clashAutomationSwitch.setChecked(ForegroundAppAccessibilityService.isAutomationEnabled(this));
+        clashAutomationSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                ForegroundAppAccessibilityService.setAutomationEnabled(this, isChecked));
     }
 
     /** 申请 Android 13+ 通知权限 */

@@ -3,6 +3,7 @@ package top.jatus.ibkr;
 import android.accessibilityservice.AccessibilityService;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 
 public class ForegroundAppAccessibilityService extends AccessibilityService {
 
+    private static final String AUTOMATION_PREFERENCES = "clash_automation";
+    private static final String AUTOMATION_ENABLED_KEY = "enabled";
     private static final long DUPLICATE_EVENT_WINDOW_MILLIS = 300L;
     private static final long LAUNCHER_STOP_DELAY_MILLIS = 2_000L;
     private static final String CLASH_PACKAGE = "com.github.metacubex.clash.meta";
@@ -37,15 +40,41 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
     private ClashAppListStore appListStore;
     private WindowManager windowManager;
     private TextView packageNameView;
+    private SharedPreferences automationPreferences;
+    private final SharedPreferences.OnSharedPreferenceChangeListener automationPreferenceListener =
+            (preferences, key) -> {
+                if (AUTOMATION_ENABLED_KEY.equals(key) && !isAutomationEnabled(this)) {
+                    mainHandler.removeCallbacks(stopClashWhenStillOnLauncher);
+                    removePackageNameOverlay();
+                }
+            };
+
+    public static boolean isAutomationEnabled(android.content.Context context) {
+        return context.getSharedPreferences(AUTOMATION_PREFERENCES, MODE_PRIVATE)
+                .getBoolean(AUTOMATION_ENABLED_KEY, true);
+    }
+
+    public static void setAutomationEnabled(android.content.Context context, boolean enabled) {
+        context.getSharedPreferences(AUTOMATION_PREFERENCES, MODE_PRIVATE)
+                .edit()
+                .putBoolean(AUTOMATION_ENABLED_KEY, enabled)
+                .apply();
+    }
 
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
         appListStore = new ClashAppListStore(this);
+        automationPreferences = getSharedPreferences(AUTOMATION_PREFERENCES, MODE_PRIVATE);
+        automationPreferences.registerOnSharedPreferenceChangeListener(automationPreferenceListener);
     }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (!isAutomationEnabled(this)) {
+            return;
+        }
+
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
                 || event.getPackageName() == null) {
             return;
@@ -81,7 +110,7 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                             | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     -3);
-            layoutParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+            layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
             layoutParams.y = dpToPixels(48);
             windowManager.addView(packageNameView, layoutParams);
         }
@@ -93,6 +122,9 @@ public class ForegroundAppAccessibilityService extends AccessibilityService {
     public void onDestroy() {
         mainHandler.removeCallbacks(stopClashWhenStillOnLauncher);
         removePackageNameOverlay();
+        if (automationPreferences != null) {
+            automationPreferences.unregisterOnSharedPreferenceChangeListener(automationPreferenceListener);
+        }
         if (appListStore != null) {
             appListStore.close();
         }

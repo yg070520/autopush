@@ -24,6 +24,17 @@
             android:max="100"
             android:visibility="gone" />
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/clashAutomationSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:background="#CCFFFFFF"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/clash_automation_switch_label" />
+
     </FrameLayout>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
